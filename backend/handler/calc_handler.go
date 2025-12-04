@@ -51,6 +51,6 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 		util.HandleError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
+	w.Write([]byte(")]}',\n"))
 	json.NewEncoder(w).Encode(model.ResultResponse{Result: result})
 }

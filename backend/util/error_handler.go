@@ -7,5 +7,6 @@ import (
 
 func HandleError(w http.ResponseWriter, status int, message string) {
 	w.WriteHeader(status)
+	w.Write([]byte(")]}',\n"))
 	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }

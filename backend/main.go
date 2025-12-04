@@ -11,8 +11,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/calc", handler.CalcHandler)
 
-	// Apply middleware
-	handlerWithMiddleware := middleware.Logging(middleware.Recovery(mux))
+	// Middleware order: Recovery -> Logging -> XSSI
+	handlerWithMiddleware := middleware.Recovery(middleware.Logging(middleware.XSSIMiddleware(mux)))
 
 	log.Println("Server started at :8080")
 	err := http.ListenAndServe(":8080", handlerWithMiddleware)
