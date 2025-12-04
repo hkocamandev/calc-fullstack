@@ -3,34 +3,47 @@ import React, { useState } from "react";
 export default function Calculator() {
   const [a, setA] = useState("");
   const [b, setB] = useState("");
+  const [op, setOp] = useState("add");
   const [result, setResult] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  const callAddAPI = async () => {
+  const callAPI = async () => {
     setError("");
     setResult(null);
 
-    try {
-      // Backend API çağrısı
-      const res = await fetch("http://localhost:8080/add?a=" + a + "&b=" + b);
-      if (!res.ok) {
-        throw new Error("API error");
-      }
+    let url = `http://localhost:8080/calc?op=${op}&a=${a}&b=${b}`;
 
-      const data = await res.json();
-      setResult(data.result);
-    } catch (err) {
-      setError("Backend error, please check server.");
+    const res = await fetch(url);
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Unknown backend error");
+      return;
     }
+
+    setResult(data.result);
   };
 
   return (
     <div style={{ padding: "20px", maxWidth: "300px" }}>
       <h2>Calculator</h2>
 
+      <select value={op} onChange={(e) => setOp(e.target.value)}>
+        <option value="add">Addition</option>
+        <option value="sub">Subtraction</option>
+        <option value="mul">Multiplication</option>
+        <option value="div">Division</option>
+        <option value="pow">Exponentiation</option>
+        <option value="sqrt">Square Root</option>
+        <option value="percent">Percentage</option>
+      </select>
+
+      <br /><br />
+
       <input
         type="number"
-        placeholder="First number"
+        placeholder="A"
         value={a}
         onChange={(e) => setA(e.target.value)}
       />
@@ -39,14 +52,15 @@ export default function Calculator() {
 
       <input
         type="number"
-        placeholder="Second number"
+        placeholder="B"
+        disabled={op === "sqrt"}
         value={b}
         onChange={(e) => setB(e.target.value)}
       />
 
       <br /><br />
 
-      <button onClick={callAddAPI}>Add</button>
+      <button onClick={callAPI}>Calculate</button>
 
       {result !== null && (
         <p>Result: <strong>{result}</strong></p>
