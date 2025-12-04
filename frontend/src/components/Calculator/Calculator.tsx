@@ -63,7 +63,7 @@ export default function Calculator() {
   }
 
   async function handleEquals() {
-    if (!operator || !b) return setError(!b ? "B giriniz" : "");
+    if (!operator || !b) return setError(!b ? "Enter Second Parameter" : "");
     setHistory(`${a} ${operator} ${b}`);
     await callBackend(opMap[operator], a, b);
   }
@@ -72,7 +72,7 @@ export default function Calculator() {
     setError(null);
     if (label === "√" || label === "x²") {
       const base = (result ?? a).toString();
-      if (!base) return setError("A giriniz");
+      if (!base) return setError("Enter First Parameter");
       setHistory(label === "√" ? `√(${base})` : `${base}²`);
       await callBackend(label === "√" ? "sqrt" : "pow", base, label === "x²" ? "2" : undefined);
       return;
