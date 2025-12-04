@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import "./calculator.css";
-import Button from "./Button";
+import "./Calculator.css";
+import Display from "./Display";
+import ButtonGrid from "./ButtonGrid";
 
 export default function Calculator() {
   const [a, setA] = useState("0");
@@ -44,6 +45,10 @@ export default function Calculator() {
 
   function appendDigit(d: string) {
     setError(null);
+    if (d === "−" && !operator && a === "0") { 
+      setA("-"); 
+      return;
+    }
     if (result !== null && !operator) { setResult(null); setA("0"); setB(""); setHistory(""); }
     if (!operator) setA(prev => (prev === "0" ? d : prev + d));
     else setB(prev => { const val = prev === "" ? d : prev + d; setHistory(`${a} ${operator} ${val}`); return val; });
@@ -72,7 +77,7 @@ export default function Calculator() {
     setError(null);
     if (label === "√" || label === "x²") {
       const base = (result ?? a).toString();
-      if (!base) return setError("Enter First Parameter");
+      if (!base || base === "-") return setError("Enter First Parameter");
       setHistory(label === "√" ? `√(${base})` : `${base}²`);
       await callBackend(label === "√" ? "sqrt" : "pow", base, label === "x²" ? "2" : undefined);
       return;
@@ -86,7 +91,7 @@ export default function Calculator() {
   }
 
   function handleButton(label: string) {
-    if (!isNaN(Number(label))) return appendDigit(label);
+    if (!isNaN(Number(label)) || label === "−") return appendDigit(label);
     if (label === ".") return appendDigit(".");
     if (label === "AC") { setA("0"); setB(""); setOperator(null); setResult(null); setHistory(""); return; }
     if (label === "⌫") { if (operator && b) setB(b.slice(0,-1)); else setA(a.slice(0,-1)||"0"); return; }
@@ -99,22 +104,8 @@ export default function Calculator() {
   return (
     <div className="calc-root">
       <div className="calc-container">
-        <div className="calc-display">
-          <div className="history">{history}</div>
-          <div className="result">{displayValue}</div>
-        </div>
-        {error && <div className="error">{error}</div>}
-        <div className="grid">
-          {buttons.map(btn => (
-            <Button
-  key={btn.label}
-  label={btn.label}
-  color={btn.color}
-  onClick={handleButton}
-  isOperator={!!btn.label && isNaN(Number(btn.label))}
-/>
-          ))}
-        </div>
+        <Display history={history} value={displayValue} error={error} />
+        <ButtonGrid buttons={buttons} onClick={handleButton} />
       </div>
     </div>
   );
