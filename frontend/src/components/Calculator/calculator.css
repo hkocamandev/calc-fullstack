@@ -1,0 +1,87 @@
+/* styles.css */
+.calc-root {
+  width: 100%;
+  height: 100vh;
+  background: #0E0E0E; /* dış arka plan */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.calc-container {
+  width: 90%;
+  max-width: 360px;
+  background: #1A1A1A;
+  padding: 20px;
+  border-radius: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.calc-display {
+  background: #111111;
+  padding: 12px 16px;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 20px;
+  box-sizing: border-box; /* padding’i taşmayı engeller */
+  overflow: hidden;
+}
+
+.history {
+  color: #7A7A7A;
+  font-size: 16px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result {
+  font-size: 42px;
+  font-weight: bold;
+  text-align: right;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.btn {
+  height: 70px;
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.btn.op { background: #3B82F6; }
+.btn.disabled { background: #222222; opacity: 0.4; cursor: not-allowed; }
+
+.error {
+  color: red;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* Responsive için mobilde küçük ekranlar */
+@media (max-width: 400px) {
+  .calc-container {
+    width: 95%;
+    padding: 10px;
+  }
+  .btn {
+    height: 60px;
+    font-size: 20px;
+  }
+  .result { font-size: 36px; }
+}
