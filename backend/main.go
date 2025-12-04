@@ -16,7 +16,7 @@ type ResultResponse struct {
 }
 
 func calcHandler(w http.ResponseWriter, r *http.Request) {
-	// CORS
+	// Allow front-end
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -29,7 +29,7 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	aStr := r.URL.Query().Get("a")
 	bStr := r.URL.Query().Get("b")
 
-	// Parse a
+	// Parse A
 	a, err1 := strconv.ParseFloat(aStr, 64)
 	if op != "sqrt" && err1 != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -37,10 +37,10 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse b if needed
+	// Parse B if needed
 	var b float64
 	var err2 error
-	if op != "sqrt" { // sqrt sadece A'yı kullanır
+	if op != "sqrt" {
 		b, err2 = strconv.ParseFloat(bStr, 64)
 		if err2 != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -54,10 +54,13 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 	switch op {
 	case "add":
 		result = a + b
+
 	case "sub":
 		result = a - b
+
 	case "mul":
 		result = a * b
+
 	case "div":
 		if b == 0 {
 			w.WriteHeader(http.StatusBadRequest)
@@ -65,8 +68,10 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		result = a / b
+
 	case "pow":
 		result = math.Pow(a, b)
+
 	case "sqrt":
 		if a < 0 {
 			w.WriteHeader(http.StatusBadRequest)
@@ -74,8 +79,10 @@ func calcHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		result = math.Sqrt(a)
+
 	case "percent":
 		result = (a * b) / 100
+
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(ErrorResponse{Error: "Unknown operation"})
