@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,18 +16,37 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	op := r.URL.Query().Get("op")
 	aStr := r.URL.Query().Get("a")
 	bStr := r.URL.Query().Get("b")
+	util.GetLogger().Info("User pressed: a=" + aStr + " b=" + bStr + " op=" + op)
+
+	if op == "" {
+		util.GetLogger().Error("Operation (op) is missing")
+		util.HandleError(w, http.StatusBadRequest, "Operation (op) is missing")
+		return
+	}
+
+	if aStr == "" {
+		util.GetLogger().Error("First parameter is missing")
+		util.HandleError(w, http.StatusBadRequest, "First parameter is missing")
+		return
+	}
+
+	if op != "sqrt" && bStr == "" {
+		util.GetLogger().Error("Second parameter is missing")
+		util.HandleError(w, http.StatusBadRequest, "Second parameter is missing")
+		return
+	}
 
 	a, err := strconv.ParseFloat(aStr, 64)
-	if op != "sqrt" && err != nil {
-		errMsg := "Invalid number A"
-		util.GetLogger().Error(errMsg) // Error log
-		util.HandleError(w, http.StatusBadRequest, errMsg)
+	if err != nil {
+		util.GetLogger().Error("Invalid number A: " + aStr)
+		util.HandleError(w, http.StatusBadRequest, "Invalid number A")
 		return
 	}
 
@@ -36,21 +54,19 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	if op != "sqrt" {
 		b, err = strconv.ParseFloat(bStr, 64)
 		if err != nil {
-			errMsg := "Invalid number B"
-			util.GetLogger().Error(errMsg) // Error log
-			util.HandleError(w, http.StatusBadRequest, errMsg)
+			util.GetLogger().Error("Invalid number B: " + bStr)
+			util.HandleError(w, http.StatusBadRequest, "Invalid number B")
 			return
 		}
 	}
 
-	util.GetLogger().Info(fmt.Sprintf("User pressed: %s, a=%f, b=%f", op, a, b))
-
 	result, err := service.CalcService{}.Calculate(op, a, b)
 	if err != nil {
-		util.GetLogger().Error(err.Error()) // Error log
 		util.HandleError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	w.Write([]byte(")]}',\n"))
-	json.NewEncoder(w).Encode(model.ResultResponse{Result: result})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(model.ResultResponse{Result: result})
 }

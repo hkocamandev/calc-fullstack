@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>handler: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">calc-backend/handler/calc_handler.go (58.5%)</option>
+				
+				<option value="file1">calc-backend/main.go (0.0%)</option>
+				
+				<option value="file2">calc-backend/middleware/middleware.go (100.0%)</option>
+				
+				<option value="file3">calc-backend/service/calc_service.go (100.0%)</option>
+				
+				<option value="file4">calc-backend/util/error_handler.go (100.0%)</option>
+				
+				<option value="file5">calc-backend/util/logger.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handler
+
+import (
+        "encoding/json"
+        "net/http"
+        "strconv"
+
+        "calc-backend/model"
+        "calc-backend/service"
+        "calc-backend/util"
+)
+
+func CalcHandler(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+        w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+        if r.Method == http.MethodOptions </span><span class="cov0" title="0">{
+                w.WriteHeader(http.StatusOK)
+                return
+        }</span>
+
+        <span class="cov8" title="1">op := r.URL.Query().Get("op")
+        aStr := r.URL.Query().Get("a")
+        bStr := r.URL.Query().Get("b")
+        util.GetLogger().Info("User pressed: a=" + aStr + " b=" + bStr + " op=" + op)
+
+        if op == "" </span><span class="cov0" title="0">{
+                util.GetLogger().Error("Operation (op) is missing")
+                util.HandleError(w, http.StatusBadRequest, "Operation (op) is missing")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if aStr == "" </span><span class="cov0" title="0">{
+                util.GetLogger().Error("First parameter is missing")
+                util.HandleError(w, http.StatusBadRequest, "First parameter is missing")
+                return
+        }</span>
+
+        <span class="cov8" title="1">if op != "sqrt" &amp;&amp; bStr == "" </span><span class="cov0" title="0">{
+                util.GetLogger().Error("Second parameter is missing")
+                util.HandleError(w, http.StatusBadRequest, "Second parameter is missing")
+                return
+        }</span>
+
+        <span class="cov8" title="1">a, err := strconv.ParseFloat(aStr, 64)
+        if err != nil </span><span class="cov0" title="0">{
+                util.GetLogger().Error("Invalid number A: " + aStr)
+                util.HandleError(w, http.StatusBadRequest, "Invalid number A")
+                return
+        }</span>
+
+        <span class="cov8" title="1">var b float64
+        if op != "sqrt" </span><span class="cov8" title="1">{
+                b, err = strconv.ParseFloat(bStr, 64)
+                if err != nil </span><span class="cov0" title="0">{
+                        util.GetLogger().Error("Invalid number B: " + bStr)
+                        util.HandleError(w, http.StatusBadRequest, "Invalid number B")
+                        return
+                }</span>
+        }
+
+        <span class="cov8" title="1">result, err := service.CalcService{}.Calculate(op, a, b)
+        if err != nil </span><span class="cov8" title="1">{
+                util.HandleError(w, http.StatusBadRequest, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusOK)
+        _ = json.NewEncoder(w).Encode(model.ResultResponse{Result: result})</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "calc-backend/handler"
+        "calc-backend/middleware"
+        "log"
+        "net/http"
+)
+
+func main() <span class="cov0" title="0">{
+        mux := http.NewServeMux()
+        mux.HandleFunc("/calc", handler.CalcHandler)
+
+        // Middleware order: Recovery -&gt; Logging
+        handlerWithMiddleware := middleware.Recovery(middleware.Logging(mux))
+
+        log.Println("Server started at :8080")
+        err := http.ListenAndServe(":8080", handlerWithMiddleware)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package middleware
+
+import (
+        "calc-backend/util"
+        "fmt"
+        "net/http"
+)
+
+func Logging(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                util.GetLogger().Info("Request: " + r.URL.Path)
+                next.ServeHTTP(w, r)
+        }</span>)
+}
+
+func Recovery(next http.Handler) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
+                defer func() </span><span class="cov8" title="1">{
+                        if rec := recover(); rec != nil </span><span class="cov8" title="1">{
+
+                                msg := fmt.Sprintf("%v", rec)
+                                util.GetLogger().Error("Panic: " + msg)
+                                http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+                        }</span>
+                }()
+                <span class="cov8" title="1">next.ServeHTTP(w, r)</span>
+        })
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package service
+
+import (
+        "calc-backend/util"
+        "errors"
+        "fmt"
+        "math"
+)
+
+// Operation interface
+type Operation interface {
+        Execute(a, b float64) (float64, error)
+}
+
+// Concrete operations
+type AddOp struct{}
+
+func (AddOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{ return a + b, nil }</span>
+
+type SubOp struct{}
+
+func (SubOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{ return a - b, nil }</span>
+
+type MulOp struct{}
+
+func (MulOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{ return a * b, nil }</span>
+
+type DivOp struct{}
+
+func (DivOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{
+        if b == 0 </span><span class="cov8" title="1">{
+                return 0, errors.New("cannot divide by zero")
+        }</span>
+        <span class="cov8" title="1">return a / b, nil</span>
+}
+
+type PowOp struct{}
+
+func (PowOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{ return math.Pow(a, b), nil }</span>
+
+type SqrtOp struct{}
+
+func (SqrtOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{
+        if a &lt; 0 </span><span class="cov8" title="1">{
+                return 0, errors.New("cannot take sqrt of negative number")
+        }</span>
+        <span class="cov8" title="1">return math.Sqrt(a), nil</span>
+}
+
+type PercentOp struct{}
+
+func (PercentOp) Execute(a, b float64) (float64, error) <span class="cov8" title="1">{ return (a * b) / 100, nil }</span>
+
+// Factory
+type OperationFactory struct{}
+
+func (f OperationFactory) GetOperation(op string) (Operation, error) <span class="cov8" title="1">{
+        switch op </span>{
+        case "add":<span class="cov8" title="1">
+                return AddOp{}, nil</span>
+        case "sub":<span class="cov8" title="1">
+                return SubOp{}, nil</span>
+        case "mul":<span class="cov8" title="1">
+                return MulOp{}, nil</span>
+        case "div":<span class="cov8" title="1">
+                return DivOp{}, nil</span>
+        case "pow", "x²":<span class="cov8" title="1">
+                return PowOp{}, nil</span>
+        case "sqrt", "√":<span class="cov8" title="1">
+                return SqrtOp{}, nil</span>
+        case "percent", "%":<span class="cov8" title="1">
+                return PercentOp{}, nil</span>
+        default:<span class="cov8" title="1">
+                return nil, errors.New("unknown operation")</span>
+        }
+}
+
+// Service
+type CalcService struct{}
+
+func (s CalcService) Calculate(op string, a, b float64) (float64, error) <span class="cov8" title="1">{
+        operation, err := OperationFactory{}.GetOperation(op)
+        if err != nil </span><span class="cov8" title="1">{
+                util.GetLogger().Error(fmt.Sprintf("Unknown operation: %s a=%v b=%v err=%v", op, a, b, err))
+                return 0, err
+        }</span>
+
+        <span class="cov8" title="1">result, err := operation.Execute(a, b)
+        if err != nil </span><span class="cov8" title="1">{
+                util.GetLogger().Error(fmt.Sprintf("Calculation error: op=%s a=%v b=%v err=%v", op, a, b, err))
+                return 0, err
+        }</span>
+
+        // Başarılı işlem logu
+        <span class="cov8" title="1">util.GetLogger().Info(fmt.Sprintf("Calculation success: op=%s a=%v b=%v result=%v", op, a, b, result))
+        return result, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package util
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+func HandleError(w http.ResponseWriter, status int, message string) <span class="cov8" title="1">{
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(status)
+        _ = json.NewEncoder(w).Encode(map[string]string{
+                "error": message,
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package util
+
+import (
+        "fmt"
+        "sync"
+)
+
+type Logger struct{}
+
+var instance *Logger
+var once sync.Once
+
+func GetLogger() *Logger <span class="cov8" title="1">{
+        once.Do(func() </span><span class="cov8" title="1">{
+                instance = &amp;Logger{}
+        }</span>)
+        <span class="cov8" title="1">return instance</span>
+}
+
+func (l *Logger) Info(msg string) <span class="cov8" title="1">{
+        fmt.Println("[INFO]", msg)
+}</span>
+
+func (l *Logger) Error(msg string) <span class="cov8" title="1">{
+        fmt.Println("[ERROR]", msg)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
