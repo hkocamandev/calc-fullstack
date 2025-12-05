@@ -1,13 +1,14 @@
-/* Calculator.css */
+/* Calculator Root */
 .calc-root {
   width: 100%;
   height: 100vh;
-  background: #0E0E0E; 
+  background: #0E0E0E;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* Calculator Container */
 .calc-container {
   width: 90%;
   max-width: 360px;
@@ -20,6 +21,7 @@
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
+/* Display */
 .calc-display {
   background: #111111;
   padding: 12px 16px;
@@ -49,12 +51,14 @@
   text-overflow: ellipsis;
 }
 
+/* Grid for normal buttons */
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
+/* Buttons */
 .btn {
   height: 70px;
   border: none;
@@ -73,7 +77,99 @@
   text-align: center;
 }
 
+/* SCI Mode - Yatay layout */
+.calc-container.sci-mode {
+  flex-direction: row;
+  width: 100%;
+  max-width: 900px;
+}
 
+.sci-layout {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+}
+
+.sci-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sci-center {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.sci-right {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+/* Responsive Styles */
+
+/* Small Screens: horizontal mode to vertical */
+@media (max-width: 430px) {
+  .calc-container.sci-mode {
+    flex-direction: column;
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .sci-layout {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sci-left {
+    margin-bottom: 10px;
+  }
+
+  .sci-center, .sci-right {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .btn {
+    height: 60px;
+    font-size: 20px;
+  }
+
+  .result {
+    font-size: 32px;
+  }
+}
+
+/* Mid Screens: horizontal, responsive grid */
+@media (min-width: 431px) and (max-width: 768px) {
+  .calc-container.sci-mode {
+    flex-direction: row;
+    max-width: 95%;
+  }
+
+  .sci-center, .sci-right {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .btn {
+    height: 65px;
+    font-size: 22px;
+  }
+
+  .result {
+    font-size: 36px;
+  }
+}
+
+/* Big screens: existing settings preserved */
+
+/* Small screens general */
 @media (max-width: 400px) {
   .calc-container {
     width: 95%;
