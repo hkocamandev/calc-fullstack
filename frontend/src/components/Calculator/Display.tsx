@@ -4,18 +4,15 @@ interface DisplayProps {
   history: string;
   value: string | number;
   error: string | null;
+  small?: boolean; // burada ekledik
 }
 
-const Display: React.FC<DisplayProps> = ({ history, value, error }) => {
+export default function Display({ history, value, error, small }: DisplayProps) {
   return (
-    <>
-      <div className="calc-display">
-        <div className="history">{history}</div>
-        <div className="result">{value}</div>
-      </div>
+    <div className={`calc-display ${small ? "display-small" : ""}`}>
+      {history && <div className="history">{history}</div>}
+      <div className="result">{value}</div>
       {error && <div className="error">{error}</div>}
-    </>
+    </div>
   );
-};
-
-export default Display;
+}
