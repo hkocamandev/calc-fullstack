@@ -1,7 +1,9 @@
 package service
 
 import (
+	"calc-backend/util"
 	"errors"
+	"fmt"
 	"math"
 )
 
@@ -27,7 +29,7 @@ type DivOp struct{}
 
 func (DivOp) Execute(a, b float64) (float64, error) {
 	if b == 0 {
-		return 0, errors.New("Cannot divide by zero")
+		return 0, errors.New("cannot divide by zero")
 	}
 	return a / b, nil
 }
@@ -40,7 +42,7 @@ type SqrtOp struct{}
 
 func (SqrtOp) Execute(a, b float64) (float64, error) {
 	if a < 0 {
-		return 0, errors.New("Cannot take sqrt of negative number")
+		return 0, errors.New("cannot take sqrt of negative number")
 	}
 	return math.Sqrt(a), nil
 }
@@ -69,7 +71,7 @@ func (f OperationFactory) GetOperation(op string) (Operation, error) {
 	case "percent", "%":
 		return PercentOp{}, nil
 	default:
-		return nil, errors.New("Unknown operation")
+		return nil, errors.New("unknown operation")
 	}
 }
 
@@ -79,7 +81,17 @@ type CalcService struct{}
 func (s CalcService) Calculate(op string, a, b float64) (float64, error) {
 	operation, err := OperationFactory{}.GetOperation(op)
 	if err != nil {
+		util.GetLogger().Error(fmt.Sprintf("Unknown operation: %s a=%v b=%v err=%v", op, a, b, err))
 		return 0, err
 	}
-	return operation.Execute(a, b)
+
+	result, err := operation.Execute(a, b)
+	if err != nil {
+		util.GetLogger().Error(fmt.Sprintf("Calculation error: op=%s a=%v b=%v err=%v", op, a, b, err))
+		return 0, err
+	}
+
+	// Başarılı işlem logu
+	util.GetLogger().Info(fmt.Sprintf("Calculation success: op=%s a=%v b=%v result=%v", op, a, b, result))
+	return result, nil
 }
