@@ -91,7 +91,6 @@ func (s CalcService) Calculate(op string, a, b float64) (float64, error) {
 		return 0, err
 	}
 
-	// Başarılı işlem logu
 	util.GetLogger().Info(fmt.Sprintf("Calculation success: op=%s a=%v b=%v result=%v", op, a, b, result))
 	return result, nil
 }

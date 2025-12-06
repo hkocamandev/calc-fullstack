@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: calc-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - calc-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: calc-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true # for file watching in docker
+    depends_on:
+      - backend
+    networks:
+      - calc-network
+
+networks:
+  calc-network:
+    driver: bridge
